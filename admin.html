@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de actualización — AgroPrecios Ec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --husk-dark:#2A1810; --pulp:#F2E8D5; --pulp-card:#FBF6EC; --bean-purple:#6B2545;
+    --gold:#C08A28; --gold-light:#E4B95C; --ink:#2A1810; --ink-soft:#5C4A3D; --line:#DDD0B5;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--pulp); color:var(--ink); font-family:'Work Sans', sans-serif; }
+  .wrap{max-width:520px;margin:0 auto;padding:22px 22px 50px;}
+  h1{ font-family:'Fraunces', serif; font-size:22px; margin:0 0 4px; }
+  .sub{ font-size:12.5px; color:var(--ink-soft); margin:0 0 16px; line-height:1.6; }
+  .card{ background:var(--pulp-card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:16px; }
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{ display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:6px; }
+  .field input, .field select{
+    width:100%; font-family:'IBM Plex Mono', monospace; font-size:16px; padding:10px 12px;
+    border:1.5px solid var(--line); border-radius:10px; background:#fff; color:var(--ink);
+  }
+  .row2{display:flex; gap:10px;}
+  .row2 .field{flex:1;}
+  .btn{
+    width:100%; background:var(--gold); color:#2A1810; border:none; font-family:'Work Sans', sans-serif;
+    font-weight:600; font-size:14px; padding:13px; border-radius:10px; cursor:pointer; margin-top:6px;
+  }
+  .btn:hover{background:var(--gold-light);}
+  .hint-ok{ font-size:12.5px; color:var(--leaf, #4A6741); margin:10px 0 0; display:none; }
+  .steps{ font-size:12.5px; line-height:1.9; color:var(--ink-soft); }
+  .steps b{color:var(--ink);}
+  a.back{ font-size:12.5px; color:var(--ink-soft); }
+  .product-select{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .pbtn{ flex:none; padding:9px 14px; border-radius:999px; background:var(--pulp-card); border:1.5px solid var(--line); font-weight:600; font-size:13px; cursor:pointer; }
+  .pbtn.active{ background:var(--bean-purple); border-color:var(--bean-purple); color:#fff; }
+  .loading{ font-size:13px; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Volver a la app</a>
+  <h1>Panel de actualización</h1>
+  <p class="sub">Elige el producto, actualiza sus datos de hoy y descarga el archivo. Esto es solo para ti — los productores nunca ven esta pantalla.</p>
+
+  <p class="loading" id="loadingMsg">Cargando datos actuales...</p>
+  <div id="adminContent" style="display:none;">
+    <div class="product-select" id="productSelect"></div>
+    <div id="formArea"></div>
+
+    <button class="btn" id="generateBtn">Generar y descargar data.json</button>
+    <p class="hint-ok" id="fileHint">✅ Archivo descargado. Súbelo en el paso de abajo — no copies ni pegues texto.</p>
+
+    <div class="card" style="margin-top:20px;">
+      <p class="sub" style="margin-bottom:10px;"><b>Cómo publicarlo (20 segundos, sin código):</b></p>
+      <p class="steps">
+        1. Entra a tu repositorio en GitHub.com<br>
+        2. Toca <b>"Add file"</b> → <b>"Upload files"</b><br>
+        3. Arrastra el archivo <b>data.json</b> descargado<br>
+        4. GitHub preguntará si reemplazas el existente — toca que sí<br>
+        5. Baja y toca <b>"Commit changes"</b><br>
+        6. Listo — en 1-2 minutos todos ven el precio nuevo, de todos los productos
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  let DATA = null;
+  let selectedKey = 'cacao';
+
+  const conversionFieldsHTML = (p) => `
+    <div class="card">
+      <div class="field">
+        <label>Precio internacional (USD/TM)</label>
+        <input type="number" id="f_tonPrice" value="${p.tonPrice}" step="1">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Diferencial comprador (USD/TM)</label>
+          <input type="number" id="f_differential" value="${p.differential}" step="10">
+        </div>
+        <div class="field">
+          <label>Gastos exportación (USD/TM)</label>
+          <input type="number" id="f_exportCosts" value="${p.exportCosts}" step="10">
+        </div>
+      </div>
+      <div class="field">
+        <label>Peso del quintal (kg)</label>
+        <input type="number" id="f_qqWeight" value="${p.qqWeight}" step="0.1">
+      </div>
+      ${p.stageC.ratio !== undefined ? `
+      <div class="field">
+        <label>Ratio ${p.stageC.label} : ${p.stageA.label}</label>
+        <input type="number" id="f_stageCRatio" value="${p.stageC.ratio}" step="0.1">
+      </div>` : ''}
+      ${p.stageB.ratio !== undefined ? `
+      <div class="field">
+        <label>Ratio ${p.stageB.label} : ${p.stageA.label}</label>
+        <input type="number" id="f_stageBRatio" value="${p.stageB.ratio}" step="0.05">
+      </div>` : ''}
+      ${p.stageB.bonus !== undefined ? `
+      <div class="field">
+        <label>Bono ${p.stageB.label} sobre ${p.stageC.label} (USD/quintal)</label>
+        <input type="number" id="f_stageBBonus" value="${p.stageB.bonus}" step="1">
+      </div>` : ''}
+    </div>`;
+
+  const simpleFieldsHTML = (p) => `
+    <div class="card">
+      <div class="field">
+        <label>Precio de referencia</label>
+        <input type="number" id="f_price" value="${p.price}" step="0.01">
+      </div>
+      <div class="field">
+        <label>Unidad (ej: kg, tallo, quintal)</label>
+        <input type="text" id="f_unit" value="${p.unit}">
+      </div>
+    </div>`;
+
+  function renderForm(){
+    const p = DATA[selectedKey];
+    document.getElementById('formArea').innerHTML = p.type === 'conversion' ? conversionFieldsHTML(p) : simpleFieldsHTML(p);
+  }
+
+  function renderProductSelect(){
+    const wrap = document.getElementById('productSelect');
+    wrap.innerHTML = Object.keys(DATA).map(key => {
+      const p = DATA[key];
+      return `<button class="pbtn ${key===selectedKey?'active':''}" data-key="${key}">${p.icon} ${p.label}</button>`;
+    }).join('');
+    wrap.querySelectorAll('.pbtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedKey = btn.dataset.key;
+        renderProductSelect();
+        renderForm();
+      });
+    });
+  }
+
+  async function init(){
+    try {
+      const res = await fetch('./data.json?t=' + Date.now());
+      if(!res.ok) throw new Error('No se pudo leer data.json actual');
+      DATA = await res.json();
+    } catch(e){
+      // fallback structure if data.json can't be read yet
+      DATA = {
+        cacao: { label:"Cacao", icon:"🌰", type:"conversion", lastUpdate:"", tonPrice:3821, differential:800, exportCosts:300, qqWeight:45.5,
+          stageA:{key:"seco",label:"Cacao seco",sub:"Grano fermentado y seco"},
+          stageB:{key:"semiseco",label:"Semiseco",sub:"1-2 dias de escurrido",bonus:20},
+          stageC:{key:"baba",label:"En baba",sub:"Recien cosechado",ratio:3} },
+        cafe: { label:"Cafe", icon:"☕", type:"conversion", lastUpdate:"", tonPrice:8200, differential:600, exportCosts:300, qqWeight:45.5,
+          stageA:{key:"oro",label:"Cafe oro (verde)",sub:"Trillado, listo para exportar"},
+          stageB:{key:"pergamino",label:"Pergamino seco",sub:"Recien secado",ratio:1.25},
+          stageC:{key:"cereza",label:"Cereza",sub:"Recien cosechado",ratio:5.4} },
+        maracuya: { label:"Maracuya", icon:"🫐", type:"simple", lastUpdate:"", unit:"kg", price:0.45 },
+        palmito: { label:"Palmito", icon:"🌿", type:"simple", lastUpdate:"", unit:"tallo (aprox. 1.36 kg)", price:0.85 }
+      };
+    }
+    document.getElementById('loadingMsg').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    renderProductSelect();
+    renderForm();
+  }
+
+  document.getElementById('generateBtn').addEventListener('click', function(){
+    const now = new Date();
+    const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const fecha = now.getDate() + ' ' + meses[now.getMonth()] + ' ' + now.getFullYear();
+
+    const p = DATA[selectedKey];
+    p.lastUpdate = fecha;
+    if(p.type === 'conversion'){
+      p.tonPrice = parseFloat(document.getElementById('f_tonPrice').value) || 0;
+      p.differential = parseFloat(document.getElementById('f_differential').value) || 0;
+      p.exportCosts = parseFloat(document.getElementById('f_exportCosts').value) || 0;
+      p.qqWeight = parseFloat(document.getElementById('f_qqWeight').value) || 0;
+      const cRatioEl = document.getElementById('f_stageCRatio');
+      if(cRatioEl) p.stageC.ratio = parseFloat(cRatioEl.value) || 1;
+      const bRatioEl = document.getElementById('f_stageBRatio');
+      if(bRatioEl) p.stageB.ratio = parseFloat(bRatioEl.value) || 1;
+      const bBonusEl = document.getElementById('f_stageBBonus');
+      if(bBonusEl) p.stageB.bonus = parseFloat(bBonusEl.value) || 0;
+    } else {
+      p.price = parseFloat(document.getElementById('f_price').value) || 0;
+      p.unit = document.getElementById('f_unit').value || p.unit;
+    }
+
+    const jsonText = JSON.stringify(DATA, null, 2);
+    const blob = new Blob([jsonText], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'data.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    document.getElementById('fileHint').style.display = 'block';
+  });
+
+  init();
+</script>
+</body>
+</html>

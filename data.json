@@ -1,0 +1,44 @@
+{
+  "cacao": {
+    "label": "Cacao",
+    "icon": "\ud83c\udf30",
+    "type": "conversion",
+    "lastUpdate": "16 jul 2026",
+    "tonPrice": 5917.00,
+    "differential": 800,
+    "exportCosts": 300,
+    "qqWeight": 45.5,
+    "stageA": { "key": "seco", "label": "Cacao seco", "sub": "Grano fermentado y seco" },
+    "stageB": { "key": "semiseco", "label": "Semiseco", "sub": "1-2 dias de escurrido", "bonus": 20 },
+    "stageC": { "key": "baba", "label": "En baba", "sub": "Recien cosechado", "ratio": 3 }
+  },
+  "cafe": {
+    "label": "Cafe",
+    "icon": "\u2615",
+    "type": "conversion",
+    "lastUpdate": "16 jul 2026",
+    "tonPrice": 8200.00,
+    "differential": 600,
+    "exportCosts": 300,
+    "qqWeight": 45.5,
+    "stageA": { "key": "oro", "label": "Cafe oro (verde)", "sub": "Trillado, listo para exportar" },
+    "stageB": { "key": "pergamino", "label": "Pergamino seco", "sub": "Recien secado", "ratio": 1.25 },
+    "stageC": { "key": "cereza", "label": "Cereza", "sub": "Recien cosechado", "ratio": 5.4 }
+  },
+  "maracuya": {
+    "label": "Maracuya",
+    "icon": "\ud83e\udee0",
+    "type": "simple",
+    "lastUpdate": "16 jul 2026",
+    "unit": "kg",
+    "price": 0.45
+  },
+  "palmito": {
+    "label": "Palmito",
+    "icon": "\ud83c\udf3f",
+    "type": "simple",
+    "lastUpdate": "16 jul 2026",
+    "unit": "tallo (aprox. 1.36 kg)",
+    "price": 0.85
+  }
+}

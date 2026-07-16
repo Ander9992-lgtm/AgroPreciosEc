@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroPrecios Ec</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2A1810">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AgroPrecios Ec">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --husk-dark:#2A1810; --husk-dark-2:#3A2317; --pulp:#F2E8D5; --pulp-card:#FBF6EC;
+    --bean-purple:#6B2545; --bean-purple-light:#8C3960; --gold:#C08A28; --gold-light:#E4B95C;
+    --leaf:#4A6741; --ink:#2A1810; --ink-soft:#5C4A3D; --line:#DDD0B5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--pulp); color:var(--ink); font-family:'Work Sans', sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap{max-width:520px;margin:0 auto;padding-bottom:50px;}
+
+  .hero{
+    background:radial-gradient(120% 140% at 20% -10%, #4A2A1B 0%, var(--husk-dark) 55%, var(--husk-dark-2) 100%);
+    color:var(--pulp-card); padding:22px 22px 0; border-radius:0 0 28px 28px; position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:""; position:absolute; right:-40px; top:-40px; width:180px;height:180px; border-radius:50%;
+    background:radial-gradient(circle, rgba(224,180,80,0.18) 0%, transparent 70%);
+  }
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-light); margin:0 0 6px; }
+  h1{ font-family:'Fraunces', serif; font-weight:600; font-size:23px; line-height:1.2; margin:0 0 4px; }
+  .hero-sub{ font-size:12.5px; color:#D8C7B4; margin:0 0 18px; }
+
+  .product-tabs{ display:flex; gap:6px; overflow-x:auto; padding-bottom:18px; -webkit-overflow-scrolling:touch; }
+  .product-tabs::-webkit-scrollbar{ display:none; }
+  .ptab{
+    flex:none; display:flex; align-items:center; gap:6px; padding:9px 14px; border-radius:999px;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.16); color:#E4D9C6;
+    font-family:'Work Sans', sans-serif; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+  .ptab.active{ background:var(--gold); border-color:var(--gold); color:#2A1810; }
+
+  .section{padding:20px 22px 0;}
+  .section-title{ font-family:'Fraunces', serif; font-size:17px; font-weight:600; margin:0 0 12px; }
+
+  .price-board{ display:flex; flex-direction:column; gap:10px; }
+  .price-item{
+    background:var(--pulp-card); border:1.5px solid var(--line); border-radius:16px; padding:16px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .price-item.featured{ background:linear-gradient(155deg, var(--bean-purple) 0%, #4E1B36 100%); border-color:transparent; color:#F6E9EF; }
+  .pi-left{ display:flex; align-items:center; gap:12px; }
+  .pi-dot{ width:38px;height:38px;border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; flex:none; }
+  .price-item:not(.featured) .pi-dot{ background:#EFE4CC; }
+  .price-item.featured .pi-dot{ background:rgba(255,255,255,0.15); }
+  .pi-label{ font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; opacity:.75; margin:0 0 2px; }
+  .pi-sub{ font-size:11px; opacity:.6; margin:0; }
+  .pi-price{ font-family:'IBM Plex Mono', monospace; font-size:22px; font-weight:600; white-space:nowrap; }
+
+  .simple-card{
+    background:linear-gradient(155deg, var(--bean-purple) 0%, #4E1B36 100%); color:#F6E9EF;
+    border-radius:18px; padding:26px 22px; text-align:center;
+  }
+  .simple-card .sc-icon{ font-size:34px; margin-bottom:6px; }
+  .simple-card .sc-price{ font-family:'IBM Plex Mono', monospace; font-size:42px; font-weight:600; }
+  .simple-card .sc-unit{ font-size:13px; color:#E3B8CB; margin-top:4px; }
+
+  .updated-box{
+    margin-top:16px; background:var(--pulp-card); border:1px dashed var(--line); border-radius:12px;
+    padding:12px 14px; font-size:12px; color:var(--ink-soft); display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .updated-box .dot-live{ width:7px;height:7px;border-radius:50%; background:var(--leaf); flex:none; }
+
+  details{ margin-top:18px; background:var(--pulp-card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+  summary{ font-weight:600; font-size:13px; cursor:pointer; }
+  .calc-rows{ margin-top:10px; font-size:12px; line-height:1.9; color:var(--ink-soft); }
+  .calc-rows div{ display:flex; justify-content:space-between; }
+  .calc-rows .final{ font-weight:600; color:var(--ink); border-top:1px solid var(--line); padding-top:6px; margin-top:4px; }
+
+  .foot{ margin:22px 22px 0; font-size:11.5px; line-height:1.7; color:var(--ink-soft); border-top:1px dashed var(--line); padding-top:14px; }
+  .foot b{color:var(--ink);}
+  .admin-link{ display:block; text-align:center; margin-top:18px; font-size:11px; color:var(--ink-soft); text-decoration:none; opacity:.55; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <p class="eyebrow">AgroPrecios Ec · Referencia diaria</p>
+    <h1 id="heroTitle">Precio del cacao hoy</h1>
+    <p class="hero-sub" id="heroSub">Cargando...</p>
+    <div class="product-tabs" id="productTabs"></div>
+  </div>
+
+  <div class="section">
+    <p class="section-title" id="boardTitle">Lo que te pagan</p>
+    <div id="boardContainer"><p style="font-size:13px;color:var(--ink-soft);">Cargando precios...</p></div>
+
+    <div class="updated-box" id="updatedBox">
+      <span class="dot-live"></span>
+      <span id="updatedText">Cargando fecha de actualización...</span>
+    </div>
+
+    <details id="calcDetails">
+      <summary>¿Cómo se calcula este precio?</summary>
+      <div class="calc-rows" id="calcRows"></div>
+    </details>
+  </div>
+
+  <div class="foot" id="footText">
+    <p><b>Uso:</b> este es un precio de referencia informativo. Confírmalo siempre con tu comprador antes de vender.</p>
+  </div>
+
+  <a class="admin-link" href="admin.html">Panel de actualización →</a>
+</div>
+
+<script>
+  const fmt = n => n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  let PRODUCTS = null;
+  let currentKey = 'cacao';
+
+  function computeConversion(p){
+    const netTon = p.tonPrice - p.differential - p.exportCosts;
+    const kgPrice = netTon / 1000;
+    const priceA = kgPrice * p.qqWeight; // stageA (base/most processed)
+    let priceC = p.stageC.ratio ? (priceA / p.stageC.ratio) : priceA;
+    let priceB;
+    if(p.stageB.ratio){ priceB = priceA / p.stageB.ratio; }
+    else if(typeof p.stageB.bonus === 'number'){ priceB = priceC + p.stageB.bonus; }
+    else { priceB = priceA; }
+    return { netTon, kgPrice, priceA, priceB, priceC };
+  }
+
+  function renderConversion(p){
+    const r = computeConversion(p);
+    document.getElementById('heroTitle').textContent = 'Precio del ' + p.label.toLowerCase() + ' hoy';
+    document.getElementById('heroSub').textContent = '$' + fmt(p.tonPrice) + ' USD/TM · referencia internacional';
+    document.getElementById('boardTitle').textContent = 'Lo que te pagan por quintal';
+
+    const items = [
+      { st: p.stageA, price: r.priceA, featured:true },
+      { st: p.stageB, price: r.priceB, featured:false },
+      { st: p.stageC, price: r.priceC, featured:false }
+    ];
+    document.getElementById('boardContainer').innerHTML = '<div class="price-board">' + items.map(it => `
+      <div class="price-item ${it.featured ? 'featured':''}">
+        <div class="pi-left">
+          <div class="pi-dot">${p.icon}</div>
+          <div>
+            <p class="pi-label">${it.st.label}</p>
+            <p class="pi-sub">${it.st.sub}</p>
+          </div>
+        </div>
+        <div class="pi-price">$${fmt(it.price)}</div>
+      </div>
+    `).join('') + '</div>';
+
+    document.getElementById('calcDetails').style.display = 'block';
+    let rows = `
+      <div><span>Precio internacional</span><span>$${fmt(p.tonPrice)}/TM</span></div>
+      <div><span>- diferencial comprador</span><span>-$${fmt(p.differential)}/TM</span></div>
+      <div><span>- gastos de exportacion</span><span>-$${fmt(p.exportCosts)}/TM</span></div>
+      <div><span>= precio neto</span><span>$${fmt(r.netTon)}/TM</span></div>
+      <div><span>x peso del quintal</span><span>${p.qqWeight} kg</span></div>
+      <div class="final"><span>= ${p.stageA.label} / quintal</span><span>$${fmt(r.priceA)}</span></div>`;
+    if(p.stageC.ratio){
+      rows += `<div style="margin-top:8px;"><span>÷ ratio ${p.stageC.label.toLowerCase()}</span><span>${p.stageC.ratio}:1 → $${fmt(r.priceC)}</span></div>`;
+    }
+    if(p.stageB.ratio){
+      rows += `<div><span>÷ ratio ${p.stageB.label.toLowerCase()}</span><span>${p.stageB.ratio}:1 → $${fmt(r.priceB)}</span></div>`;
+    } else if(typeof p.stageB.bonus === 'number'){
+      rows += `<div><span>+ bono ${p.stageB.label.toLowerCase()}</span><span>+$${fmt(p.stageB.bonus)} → $${fmt(r.priceB)}</span></div>`;
+    }
+    document.getElementById('calcRows').innerHTML = rows;
+
+    document.getElementById('footText').innerHTML = `<p><b>Sobre este precio:</b> se calcula a partir del precio internacional (referencia de bolsa), restando el diferencial que aplican los compradores y los gastos de exportacion, y convirtiendo a quintal.</p><p><b>Uso:</b> es un precio de referencia informativo. Confirmalo siempre con tu comprador antes de vender.</p>`;
+  }
+
+  function renderSimple(p){
+    document.getElementById('heroTitle').textContent = 'Precio de ' + p.label.toLowerCase() + ' hoy';
+    document.getElementById('heroSub').textContent = 'Precio de referencia al productor';
+    document.getElementById('boardTitle').textContent = 'Lo que te pagan';
+
+    document.getElementById('boardContainer').innerHTML = `
+      <div class="simple-card">
+        <div class="sc-icon">${p.icon}</div>
+        <div class="sc-price">$${fmt(p.price)}</div>
+        <div class="sc-unit">por ${p.unit}</div>
+      </div>`;
+
+    document.getElementById('calcDetails').style.display = 'none';
+    document.getElementById('footText').innerHTML = `<p><b>Sobre este precio:</b> ${p.label} no cotiza en bolsa internacional como el cacao o el cafe, asi que este es un precio de referencia local, actualizado directamente por el administrador de la app.</p><p><b>Uso:</b> es informativo. Confirmalo siempre con tu comprador antes de vender.</p>`;
+  }
+
+  function renderProduct(key){
+    currentKey = key;
+    const p = PRODUCTS[key];
+    document.querySelectorAll('.ptab').forEach(t => t.classList.toggle('active', t.dataset.key === key));
+    document.getElementById('updatedText').textContent = 'Actualizado: ' + p.lastUpdate;
+    if(p.type === 'conversion') renderConversion(p);
+    else renderSimple(p);
+  }
+
+  function buildTabs(){
+    const tabs = document.getElementById('productTabs');
+    tabs.innerHTML = Object.keys(PRODUCTS).map(key => {
+      const p = PRODUCTS[key];
+      return `<button class="ptab" data-key="${key}">${p.icon} ${p.label}</button>`;
+    }).join('');
+    tabs.querySelectorAll('.ptab').forEach(btn => {
+      btn.addEventListener('click', () => renderProduct(btn.dataset.key));
+    });
+  }
+
+  async function load(){
+    try {
+      const res = await fetch('./data.json?t=' + Date.now());
+      if(!res.ok) throw new Error('HTTP ' + res.status + ' al pedir data.json');
+      PRODUCTS = await res.json();
+      buildTabs();
+      renderProduct('cacao');
+    } catch(e){
+      document.getElementById('heroSub').textContent = 'Error: ' + e.message;
+    }
+  }
+
+  load();
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('service-worker.js').catch(function(){});
+    });
+  }
+</script>
+</body>
+</html>
