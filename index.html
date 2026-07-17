@@ -93,6 +93,36 @@
   .foot{ margin:22px 22px 0; font-size:11.5px; line-height:1.7; color:var(--ink-soft); border-top:1px dashed var(--line); padding-top:14px; }
   .foot b{color:var(--ink);}
   .admin-link{ display:block; text-align:center; margin-top:18px; font-size:11px; color:var(--ink-soft); text-decoration:none; opacity:.55; }
+
+  .sponsor-banner{
+    margin-top:16px; display:flex; align-items:center; gap:12px; text-decoration:none;
+    background:#EFE4CC; border:1px solid var(--line); border-radius:14px; padding:12px 14px; color:var(--ink);
+  }
+  .sponsor-banner .sp-icon{ font-size:24px; flex:none; }
+  .sponsor-banner .sp-tag{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); font-weight:600; margin:0 0 2px; }
+  .sponsor-banner .sp-name{ font-size:13.5px; font-weight:600; margin:0; }
+  .sponsor-banner .sp-msg{ font-size:12px; color:var(--ink-soft); margin:0; }
+
+  .calc-card{ margin-top:16px; background:var(--pulp-card); border:1.5px solid var(--line); border-radius:16px; padding:16px 18px; }
+  .calc-card h3{ font-family:'Fraunces', serif; font-size:15px; margin:0 0 10px; }
+  .calc-stage-picker{ display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .calc-stage-btn{
+    flex:1; min-width:80px; border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    padding:8px 6px; border-radius:10px; font-size:11.5px; font-weight:600; cursor:pointer; text-align:center;
+  }
+  .calc-stage-btn.active{ background:var(--husk-dark); border-color:var(--husk-dark); color:#fff; }
+  .calc-row{ display:flex; gap:10px; align-items:flex-end; }
+  .calc-row .field{ flex:1; margin-bottom:0; }
+  .calc-row input{
+    width:100%; font-family:'IBM Plex Mono', monospace; font-size:16px; padding:10px 12px;
+    border:1.5px solid var(--line); border-radius:10px; background:#fff; color:var(--ink);
+  }
+  .calc-total{
+    margin-top:14px; background:linear-gradient(155deg, var(--bean-purple) 0%, #4E1B36 100%); color:#F6E9EF;
+    border-radius:12px; padding:14px 16px; text-align:center;
+  }
+  .calc-total .ct-label{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#E3B8CB; margin:0 0 4px; }
+  .calc-total .ct-value{ font-family:'IBM Plex Mono', monospace; font-size:28px; font-weight:600; }
 </style>
 </head>
 <body>
@@ -110,6 +140,8 @@
     <p class="section-title" id="boardTitle">Lo que te pagan</p>
     <div id="boardContainer"><p style="font-size:13px;color:var(--ink-soft);">Cargando precios...</p></div>
 
+    <div id="sponsorSlot"></div>
+
     <div class="updated-box" id="updatedBox">
       <span class="dot-live"></span>
       <span id="updatedText">Cargando fecha de actualización...</span>
@@ -119,6 +151,21 @@
       <summary>¿Cómo se calcula este precio?</summary>
       <div class="calc-rows" id="calcRows"></div>
     </details>
+
+    <div class="calc-card">
+      <h3>🧮 Calculadora de venta</h3>
+      <div class="calc-stage-picker" id="calcStagePicker"></div>
+      <div class="calc-row">
+        <div class="field">
+          <label id="calcQtyLabel" style="font-size:12px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px;">Cantidad a vender</label>
+          <input type="number" id="calcQty" value="1" min="0" step="0.5">
+        </div>
+      </div>
+      <div class="calc-total">
+        <p class="ct-label">Deberías recibir</p>
+        <p class="ct-value" id="calcTotal">$0.00</p>
+      </div>
+    </div>
 
     <!-- ESPACIO PARA ANUNCIO (Google AdSense) -->
     <!-- Cuando tengas tu cuenta de AdSense aprobada, reemplaza este div por el código
@@ -139,6 +186,34 @@
   let PRODUCTS = null;
   let currentKey = 'cacao';
   let currentVarietyKey = null;
+
+  let calcPrices = [];
+  let calcSelectedKey = null;
+  let calcUnitLabel = 'quintal';
+
+  function renderCalcPicker(){
+    const wrap = document.getElementById('calcStagePicker');
+    if(calcPrices.length <= 1){
+      wrap.style.display = 'none';
+      wrap.innerHTML = '';
+    } else {
+      wrap.style.display = 'flex';
+      wrap.innerHTML = calcPrices.map(cp => `<button class="calc-stage-btn ${cp.key===calcSelectedKey?'active':''}" data-key="${cp.key}">${cp.label}</button>`).join('');
+      wrap.querySelectorAll('.calc-stage-btn').forEach(btn => {
+        btn.addEventListener('click', () => { calcSelectedKey = btn.dataset.key; renderCalcPicker(); updateCalcTotal(); });
+      });
+    }
+    document.getElementById('calcQtyLabel').textContent = 'Cantidad a vender (' + calcUnitLabel + ')';
+  }
+
+  function updateCalcTotal(){
+    const cp = calcPrices.find(c => c.key === calcSelectedKey) || calcPrices[0];
+    const qty = parseFloat(document.getElementById('calcQty').value) || 0;
+    const total = cp ? cp.price * qty : 0;
+    document.getElementById('calcTotal').textContent = '$' + fmt(total);
+  }
+
+  document.getElementById('calcQty').addEventListener('input', updateCalcTotal);
 
   function computeConversion(p){
     const netTon = p.tonPrice - p.differential - p.exportCosts;
@@ -195,6 +270,12 @@
     document.getElementById('calcRows').innerHTML = rows;
 
     document.getElementById('footText').innerHTML = `<p><b>Sobre este precio:</b> se calcula a partir del precio internacional (referencia de bolsa), restando el diferencial que aplican los compradores y los gastos de exportacion, y convirtiendo a quintal.</p><p><b>Uso:</b> es un precio de referencia informativo. Confirmalo siempre con tu comprador antes de vender.</p>`;
+
+    calcPrices = items.map(it => ({ key: it.st.key, label: it.st.label, price: it.price }));
+    if(!calcPrices.find(c => c.key === calcSelectedKey)) calcSelectedKey = calcPrices[0].key;
+    calcUnitLabel = 'quintal';
+    renderCalcPicker();
+    updateCalcTotal();
   }
 
   function renderSimple(p){
@@ -211,6 +292,12 @@
 
     document.getElementById('calcDetails').style.display = 'none';
     document.getElementById('footText').innerHTML = `<p><b>Sobre este precio:</b> ${p.label} no cotiza en bolsa internacional como el cacao o el cafe, asi que este es un precio de referencia local, actualizado directamente por el administrador de la app.</p><p><b>Uso:</b> es informativo. Confirmalo siempre con tu comprador antes de vender.</p>`;
+
+    calcPrices = [{ key: 'single', label: p.label, price: p.price }];
+    calcSelectedKey = 'single';
+    calcUnitLabel = p.unit;
+    renderCalcPicker();
+    updateCalcTotal();
   }
 
   function buildVarietyTabs(product){
@@ -260,6 +347,22 @@
     });
   }
 
+  function renderSponsor(){
+    const el = document.getElementById('sponsorSlot');
+    const s = PRODUCTS && PRODUCTS.sponsor;
+    if(!s || !s.enabled || !s.name){ el.innerHTML = ''; return; }
+    const inner = `
+      <span class="sp-icon">${s.logoEmoji || '🏪'}</span>
+      <div>
+        <p class="sp-tag">Patrocinado por</p>
+        <p class="sp-name">${s.name}</p>
+        ${s.message ? `<p class="sp-msg">${s.message}</p>` : ''}
+      </div>`;
+    el.innerHTML = s.link
+      ? `<a class="sponsor-banner" href="${s.link}" target="_blank" rel="noopener">${inner}</a>`
+      : `<div class="sponsor-banner">${inner}</div>`;
+  }
+
   async function load(){
     try {
       const res = await fetch('./data.json?t=' + Date.now());
@@ -267,6 +370,7 @@
       PRODUCTS = await res.json();
       buildTabs();
       renderProduct('cacao');
+      renderSponsor();
     } catch(e){
       document.getElementById('heroSub').textContent = 'Error: ' + e.message;
     }

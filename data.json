@@ -1,49 +1,91 @@
 {
   "cacao": {
     "label": "Cacao",
-    "icon": "\ud83c\udf30",
+    "icon": "🌰",
     "type": "conversion",
     "lastUpdate": "16 jul 2026",
-    "tonPrice": 5441.00,
+    "tonPrice": 5917.0,
     "differential": 800,
     "exportCosts": 300,
     "qqWeight": 45.5,
-    "stageA": { "key": "seco", "label": "Cacao seco", "sub": "Grano fermentado y seco" },
-    "stageB": { "key": "Escurrido", "label": "Escurrido", "sub": "1-2 dias de escurrido", "bonus": 20 },
-    "stageC": { "key": "baba", "label": "En baba", "sub": "Recien cosechado", "ratio": 3 }
+    "stageA": {
+      "key": "seco",
+      "label": "Cacao seco",
+      "sub": "Grano fermentado y seco"
+    },
+    "stageB": {
+      "key": "semiseco",
+      "label": "Semiseco",
+      "sub": "1-2 dias de escurrido",
+      "bonus": 20
+    },
+    "stageC": {
+      "key": "baba",
+      "label": "En baba",
+      "sub": "Recien cosechado",
+      "ratio": 3
+    }
   },
   "cafe": {
     "label": "Cafe",
-    "icon": "\u2615",
+    "icon": "☕",
     "type": "conversion_multi",
     "varieties": {
       "arabica": {
         "label": "Arabiga",
         "lastUpdate": "16 jul 2026",
-        "tonPrice": 8470.00,
+        "tonPrice": 8470.0,
         "differential": 600,
         "exportCosts": 300,
         "qqWeight": 45.5,
-        "stageA": { "key": "oro", "label": "Cafe oro (verde)", "sub": "Trillado, listo para exportar" },
-        "stageB": { "key": "pergamino", "label": "Pergamino seco", "sub": "Recien secado", "ratio": 1.25 },
-        "stageC": { "key": "cereza", "label": "Cereza", "sub": "Recien cosechado", "ratio": 5.4 }
+        "stageA": {
+          "key": "oro",
+          "label": "Cafe oro (verde)",
+          "sub": "Trillado, listo para exportar"
+        },
+        "stageB": {
+          "key": "pergamino",
+          "label": "Pergamino seco",
+          "sub": "Recien secado",
+          "ratio": 1.25
+        },
+        "stageC": {
+          "key": "cereza",
+          "label": "Cereza",
+          "sub": "Recien cosechado",
+          "ratio": 5.4
+        }
       },
       "robusta": {
         "label": "Robusta",
         "lastUpdate": "16 jul 2026",
-        "tonPrice": 3900.00,
+        "tonPrice": 3900.0,
         "differential": 400,
         "exportCosts": 300,
         "qqWeight": 45.5,
-        "stageA": { "key": "oro", "label": "Cafe oro (verde)", "sub": "Trillado, listo para exportar" },
-        "stageB": { "key": "pergamino", "label": "Pergamino seco", "sub": "Recien secado", "ratio": 1.25 },
-        "stageC": { "key": "cereza", "label": "Cereza", "sub": "Recien cosechado", "ratio": 5.4 }
+        "stageA": {
+          "key": "oro",
+          "label": "Cafe oro (verde)",
+          "sub": "Trillado, listo para exportar"
+        },
+        "stageB": {
+          "key": "pergamino",
+          "label": "Pergamino seco",
+          "sub": "Recien secado",
+          "ratio": 1.25
+        },
+        "stageC": {
+          "key": "cereza",
+          "label": "Cereza",
+          "sub": "Recien cosechado",
+          "ratio": 5.4
+        }
       }
     }
   },
   "maracuya": {
     "label": "Maracuya",
-    "icon": "\ud83e\udee0",
+    "icon": "🍈",
     "type": "simple",
     "lastUpdate": "16 jul 2026",
     "unit": "kg",
@@ -51,10 +93,17 @@
   },
   "palmito": {
     "label": "Palmito",
-    "icon": "\ud83c\udf3f",
+    "icon": "🌿",
     "type": "simple",
     "lastUpdate": "16 jul 2026",
     "unit": "tallo (aprox. 1.36 kg)",
-    "price": 0.47
+    "price": 0.85
+  },
+  "sponsor": {
+    "enabled": false,
+    "name": "",
+    "message": "",
+    "link": "",
+    "logoEmoji": "🏪"
   }
 }
