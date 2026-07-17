@@ -103,6 +103,7 @@
     <h1 id="heroTitle">Precio del cacao hoy</h1>
     <p class="hero-sub" id="heroSub">Cargando...</p>
     <div class="product-tabs" id="productTabs"></div>
+    <div class="product-tabs" id="varietyTabs" style="display:none;padding-top:0;"></div>
   </div>
 
   <div class="section">
@@ -137,11 +138,12 @@
   const fmt = n => n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
   let PRODUCTS = null;
   let currentKey = 'cacao';
+  let currentVarietyKey = null;
 
   function computeConversion(p){
     const netTon = p.tonPrice - p.differential - p.exportCosts;
     const kgPrice = netTon / 1000;
-    const priceA = kgPrice * p.qqWeight; // stageA (base/most processed)
+    const priceA = kgPrice * p.qqWeight;
     let priceC = p.stageC.ratio ? (priceA / p.stageC.ratio) : priceA;
     let priceB;
     if(p.stageB.ratio){ priceB = priceA / p.stageB.ratio; }
@@ -150,9 +152,9 @@
     return { netTon, kgPrice, priceA, priceB, priceC };
   }
 
-  function renderConversion(p){
+  function renderConversion(p, icon, titleLabel){
     const r = computeConversion(p);
-    document.getElementById('heroTitle').textContent = 'Precio del ' + p.label.toLowerCase() + ' hoy';
+    document.getElementById('heroTitle').textContent = 'Precio del ' + titleLabel.toLowerCase() + ' hoy';
     document.getElementById('heroSub').textContent = '$' + fmt(p.tonPrice) + ' USD/TM · referencia internacional';
     document.getElementById('boardTitle').textContent = 'Lo que te pagan por quintal';
 
@@ -164,7 +166,7 @@
     document.getElementById('boardContainer').innerHTML = '<div class="price-board">' + items.map(it => `
       <div class="price-item ${it.featured ? 'featured':''}">
         <div class="pi-left">
-          <div class="pi-dot">${p.icon}</div>
+          <div class="pi-dot">${icon}</div>
           <div>
             <p class="pi-label">${it.st.label}</p>
             <p class="pi-sub">${it.st.sub}</p>
@@ -211,13 +213,40 @@
     document.getElementById('footText').innerHTML = `<p><b>Sobre este precio:</b> ${p.label} no cotiza en bolsa internacional como el cacao o el cafe, asi que este es un precio de referencia local, actualizado directamente por el administrador de la app.</p><p><b>Uso:</b> es informativo. Confirmalo siempre con tu comprador antes de vender.</p>`;
   }
 
+  function buildVarietyTabs(product){
+    const wrap = document.getElementById('varietyTabs');
+    const keys = Object.keys(product.varieties);
+    wrap.style.display = 'flex';
+    wrap.innerHTML = keys.map(vk => {
+      const v = product.varieties[vk];
+      return `<button class="ptab ${vk===currentVarietyKey?'active':''}" data-vkey="${vk}">${v.label}</button>`;
+    }).join('');
+    wrap.querySelectorAll('.ptab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentVarietyKey = btn.dataset.vkey;
+        renderProduct(currentKey);
+      });
+    });
+  }
+
   function renderProduct(key){
     currentKey = key;
     const p = PRODUCTS[key];
-    document.querySelectorAll('.ptab').forEach(t => t.classList.toggle('active', t.dataset.key === key));
-    document.getElementById('updatedText').textContent = 'Actualizado: ' + p.lastUpdate;
-    if(p.type === 'conversion') renderConversion(p);
-    else renderSimple(p);
+    document.querySelectorAll('#productTabs .ptab').forEach(t => t.classList.toggle('active', t.dataset.key === key));
+
+    if(p.type === 'conversion_multi'){
+      const varietyKeys = Object.keys(p.varieties);
+      if(!currentVarietyKey || !p.varieties[currentVarietyKey]) currentVarietyKey = varietyKeys[0];
+      buildVarietyTabs(p);
+      const variety = p.varieties[currentVarietyKey];
+      document.getElementById('updatedText').textContent = 'Actualizado: ' + variety.lastUpdate;
+      renderConversion(variety, p.icon, p.label + ' ' + variety.label);
+    } else {
+      document.getElementById('varietyTabs').style.display = 'none';
+      document.getElementById('updatedText').textContent = 'Actualizado: ' + p.lastUpdate;
+      if(p.type === 'conversion') renderConversion(p, p.icon, p.label);
+      else renderSimple(p);
+    }
   }
 
   function buildTabs(){
@@ -227,7 +256,7 @@
       return `<button class="ptab" data-key="${key}">${p.icon} ${p.label}</button>`;
     }).join('');
     tabs.querySelectorAll('.ptab').forEach(btn => {
-      btn.addEventListener('click', () => renderProduct(btn.dataset.key));
+      btn.addEventListener('click', () => { currentVarietyKey = null; renderProduct(btn.dataset.key); });
     });
   }
 

@@ -4,7 +4,7 @@
     "icon": "\ud83c\udf30",
     "type": "conversion",
     "lastUpdate": "16 jul 2026",
-    "tonPrice": 5441.00,
+    "tonPrice": 5917.00,
     "differential": 800,
     "exportCosts": 300,
     "qqWeight": 45.5,
@@ -15,15 +15,31 @@
   "cafe": {
     "label": "Cafe",
     "icon": "\u2615",
-    "type": "conversion",
-    "lastUpdate": "16 jul 2026",
-    "tonPrice": 8200.00,
-    "differential": 600,
-    "exportCosts": 300,
-    "qqWeight": 45.5,
-    "stageA": { "key": "oro", "label": "Cafe oro (verde)", "sub": "Trillado, listo para exportar" },
-    "stageB": { "key": "pergamino", "label": "Pergamino seco", "sub": "Recien secado", "ratio": 1.25 },
-    "stageC": { "key": "cereza", "label": "Cereza", "sub": "Recien cosechado", "ratio": 5.4 }
+    "type": "conversion_multi",
+    "varieties": {
+      "arabica": {
+        "label": "Arabiga",
+        "lastUpdate": "16 jul 2026",
+        "tonPrice": 8470.00,
+        "differential": 600,
+        "exportCosts": 300,
+        "qqWeight": 45.5,
+        "stageA": { "key": "oro", "label": "Cafe oro (verde)", "sub": "Trillado, listo para exportar" },
+        "stageB": { "key": "pergamino", "label": "Pergamino seco", "sub": "Recien secado", "ratio": 1.25 },
+        "stageC": { "key": "cereza", "label": "Cereza", "sub": "Recien cosechado", "ratio": 5.4 }
+      },
+      "robusta": {
+        "label": "Robusta",
+        "lastUpdate": "16 jul 2026",
+        "tonPrice": 3900.00,
+        "differential": 400,
+        "exportCosts": 300,
+        "qqWeight": 45.5,
+        "stageA": { "key": "oro", "label": "Cafe oro (verde)", "sub": "Trillado, listo para exportar" },
+        "stageB": { "key": "pergamino", "label": "Pergamino seco", "sub": "Recien secado", "ratio": 1.25 },
+        "stageC": { "key": "cereza", "label": "Cereza", "sub": "Recien cosechado", "ratio": 5.4 }
+      }
+    }
   },
   "maracuya": {
     "label": "Maracuya",
@@ -39,6 +55,6 @@
     "type": "simple",
     "lastUpdate": "16 jul 2026",
     "unit": "tallo (aprox. 1.36 kg)",
-    "price": 0.47
+    "price": 0.85
   }
 }

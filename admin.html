@@ -73,6 +73,7 @@
 <script>
   let DATA = null;
   let selectedKey = 'cacao';
+  let selectedVarietyKey = null;
 
   const conversionFieldsHTML = (p) => `
     <div class="card">
@@ -123,9 +124,26 @@
       </div>
     </div>`;
 
+  function varietyPickerHTML(p){
+    const keys = Object.keys(p.varieties);
+    return `<div class="product-select" id="varietySelect" style="margin-bottom:14px;">` +
+      keys.map(vk => `<button class="pbtn ${vk===selectedVarietyKey?'active':''}" data-vkey="${vk}" style="background:${vk===selectedVarietyKey?'var(--gold)':''};border-color:${vk===selectedVarietyKey?'var(--gold)':''};color:${vk===selectedVarietyKey?'#2A1810':''};">${p.varieties[vk].label}</button>`).join('') +
+      `</div>`;
+  }
+
   function renderForm(){
     const p = DATA[selectedKey];
-    document.getElementById('formArea').innerHTML = p.type === 'conversion' ? conversionFieldsHTML(p) : simpleFieldsHTML(p);
+    if(p.type === 'conversion_multi'){
+      const varietyKeys = Object.keys(p.varieties);
+      if(!selectedVarietyKey || !p.varieties[selectedVarietyKey]) selectedVarietyKey = varietyKeys[0];
+      const variety = p.varieties[selectedVarietyKey];
+      document.getElementById('formArea').innerHTML = varietyPickerHTML(p) + conversionFieldsHTML(variety);
+      document.querySelectorAll('#varietySelect .pbtn').forEach(btn => {
+        btn.addEventListener('click', () => { selectedVarietyKey = btn.dataset.vkey; renderForm(); });
+      });
+    } else {
+      document.getElementById('formArea').innerHTML = p.type === 'conversion' ? conversionFieldsHTML(p) : simpleFieldsHTML(p);
+    }
   }
 
   function renderProductSelect(){
@@ -137,6 +155,7 @@
     wrap.querySelectorAll('.pbtn').forEach(btn => {
       btn.addEventListener('click', () => {
         selectedKey = btn.dataset.key;
+        selectedVarietyKey = null;
         renderProductSelect();
         renderForm();
       });
@@ -155,10 +174,16 @@
           stageA:{key:"seco",label:"Cacao seco",sub:"Grano fermentado y seco"},
           stageB:{key:"semiseco",label:"Semiseco",sub:"1-2 dias de escurrido",bonus:20},
           stageC:{key:"baba",label:"En baba",sub:"Recien cosechado",ratio:3} },
-        cafe: { label:"Cafe", icon:"☕", type:"conversion", lastUpdate:"", tonPrice:8200, differential:600, exportCosts:300, qqWeight:45.5,
-          stageA:{key:"oro",label:"Cafe oro (verde)",sub:"Trillado, listo para exportar"},
-          stageB:{key:"pergamino",label:"Pergamino seco",sub:"Recien secado",ratio:1.25},
-          stageC:{key:"cereza",label:"Cereza",sub:"Recien cosechado",ratio:5.4} },
+        cafe: { label:"Cafe", icon:"☕", type:"conversion_multi", varieties: {
+            arabica: { label:"Arabiga", lastUpdate:"", tonPrice:8470, differential:600, exportCosts:300, qqWeight:45.5,
+              stageA:{key:"oro",label:"Cafe oro (verde)",sub:"Trillado, listo para exportar"},
+              stageB:{key:"pergamino",label:"Pergamino seco",sub:"Recien secado",ratio:1.25},
+              stageC:{key:"cereza",label:"Cereza",sub:"Recien cosechado",ratio:5.4} },
+            robusta: { label:"Robusta", lastUpdate:"", tonPrice:3900, differential:400, exportCosts:300, qqWeight:45.5,
+              stageA:{key:"oro",label:"Cafe oro (verde)",sub:"Trillado, listo para exportar"},
+              stageB:{key:"pergamino",label:"Pergamino seco",sub:"Recien secado",ratio:1.25},
+              stageC:{key:"cereza",label:"Cereza",sub:"Recien cosechado",ratio:5.4} }
+          } },
         maracuya: { label:"Maracuya", icon:"🫐", type:"simple", lastUpdate:"", unit:"kg", price:0.45 },
         palmito: { label:"Palmito", icon:"🌿", type:"simple", lastUpdate:"", unit:"tallo (aprox. 1.36 kg)", price:0.85 }
       };
@@ -174,9 +199,10 @@
     const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     const fecha = now.getDate() + ' ' + meses[now.getMonth()] + ' ' + now.getFullYear();
 
-    const p = DATA[selectedKey];
+    const productRef = DATA[selectedKey];
+    const p = productRef.type === 'conversion_multi' ? productRef.varieties[selectedVarietyKey] : productRef;
     p.lastUpdate = fecha;
-    if(p.type === 'conversion'){
+    if(productRef.type === 'conversion' || productRef.type === 'conversion_multi'){
       p.tonPrice = parseFloat(document.getElementById('f_tonPrice').value) || 0;
       p.differential = parseFloat(document.getElementById('f_differential').value) || 0;
       p.exportCosts = parseFloat(document.getElementById('f_exportCosts').value) || 0;
