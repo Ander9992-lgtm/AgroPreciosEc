@@ -4,12 +4,12 @@
     "icon": "\ud83c\udf30",
     "type": "conversion",
     "lastUpdate": "16 jul 2026",
-    "tonPrice": 5917.00,
+    "tonPrice": 5441.00,
     "differential": 800,
     "exportCosts": 300,
     "qqWeight": 45.5,
     "stageA": { "key": "seco", "label": "Cacao seco", "sub": "Grano fermentado y seco" },
-    "stageB": { "key": "semiseco", "label": "Semiseco", "sub": "1-2 dias de escurrido", "bonus": 20 },
+    "stageB": { "key": "Escurrido", "label": "Escurrido", "sub": "1-2 dias de escurrido", "bonus": 20 },
     "stageC": { "key": "baba", "label": "En baba", "sub": "Recien cosechado", "ratio": 3 }
   },
   "cafe": {
@@ -55,6 +55,6 @@
     "type": "simple",
     "lastUpdate": "16 jul 2026",
     "unit": "tallo (aprox. 1.36 kg)",
-    "price": 0.85
+    "price": 0.47
   }
 }
