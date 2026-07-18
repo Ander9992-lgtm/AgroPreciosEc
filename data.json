@@ -14,8 +14,8 @@
       "sub": "Grano fermentado y seco"
     },
     "stageB": {
-      "key": "semiseco",
-      "label": "Semiseco",
+      "key": "Escurrido",
+      "label": "Escurrido",
       "sub": "1-2 dias de escurrido",
       "bonus": 20
     },
